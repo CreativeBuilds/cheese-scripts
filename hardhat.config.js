@@ -42,6 +42,13 @@ module.exports = {
       accounts: {
         mnemonic: mnemonic(),
       }
+    },
+    harmony_alt: {
+      url:"https://api.harmony.one",
+      chainId: 1666600000,
+      accounts: {
+        mnemonic: mnemonic(),
+      }
     }
   }
 };
