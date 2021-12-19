@@ -1,5 +1,5 @@
 // Startup logs to run on every script
-function InitialLogs() {
+function InitialLogs(name) {
   console.log(
     `
   $$$$$$$$$$$$$$$$NNMMMMN$$$$$$$$$$$$$$$$$
@@ -29,6 +29,6 @@ function InitialLogs() {
   );
 
   // pull version number from package.json
-  console.log(`\n   🧀 LP Rebond Script v${require('../../package.json').version} 🧀\n    By: @CreativeBuilds\n`);
+  console.log(`\n   🧀 ${name} v${require('../../package.json').version} 🧀\n    By: @CreativeBuilds\n`);
 }
 exports.InitialLogs = InitialLogs;

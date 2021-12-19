@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "claim": "hardhat run scripts/claim.js --network harmony_alt",
     "rebond": "hardhat run scripts/rebond_lp.js --network harmony",
     "rebond:alt": "hardhat run scripts/rebond_lp.js --network harmony_alt",
     "test": "echo \"Error: no test specified\" && exit 1"

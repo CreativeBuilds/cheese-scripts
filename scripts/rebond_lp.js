@@ -23,7 +23,7 @@ hre.run("compile")
 
 async function StartRebondLoop(index = 0) { 
   index++;
-  if(index == 1) InitialLogs()
+  if(index == 1) InitialLogs("LP Rebond Script")
   
   return TryRebonding(index)
   .then((rebonded) => WaitBeforeRetry(rebonded))
@@ -118,6 +118,11 @@ async function TryRebonding(index) {
 
     const token0 = "0xBbD83eF0c9D347C85e60F1b5D2c58796dBE1bA0d"; // Cheez
     const token1 = "0xef977d2f931c1978db5f6747666fa1eacb0d0339"; // DAI
+
+    const MIN_AMOUNT_CLAIMED = Number(process.env.MIN_AMOUNT_CLAIMED);
+    // if amountRedeemed is little, then we don't need to redeem
+    if(Number(pendingPayout.toString()) / Math.pow(10, 9) < (isNaN(MIN_AMOUNT_CLAIMED) ? 0.01 : MIN_AMOUNT_CLAIMED)) 
+        return console.log("Not enough CHEEZ to claim");
 
     // Using ethers-multicall do the following
     // 1.) Claim existing bonds
