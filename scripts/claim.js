@@ -9,7 +9,7 @@ const { MIN_USD_PRICE_TO_SELL, MINIMUM_BONDS_PROFITABILITY } = require("./helper
 
 let { BOND_CONTRACT_ADDRESS, BOND_CALCULATOR_ADDRESS, STAKING_CONTRACT_ADDRESS, LP_ADDRESS, ROUTER_ADDRESS, TOKEN_ADDRESS, DAI_ADDRESS } = GetContractAddresses();
 const SELL_CLAIM = process.env.SELL == "true";
-const IGNORE_BOND_PROFITABILITY = !!process.env.IGNORE_BOND_PROFITABILITY;
+const IGNORE_BONDS_PROFITABILITY = process.env.IGNORE_BONDS_PROFITABILITY == "true";
 const SHOULD_STAKE = process.env.STAKE == "true";
 
 hre.run("compile")
@@ -69,7 +69,7 @@ async function TryClaiming(index) {
   console.log(`Bond Discount: ${trim(bondDiscount, 2)}% (MIN ${trim(MINIMUM_BONDS_PROFITABILITY, 2)}%)`);
   console.log(`Bond Price: ${trim(bondPrice, 2)} USD`);
 
-  if(bondDiscount > MINIMUM_BONDS_PROFITABILITY || IGNORE_BOND_PROFITABILITY) {
+  if(bondDiscount > MINIMUM_BONDS_PROFITABILITY || IGNORE_BONDS_PROFITABILITY) {
     await RedeemAndSell();
     return true
   } else {
@@ -157,7 +157,7 @@ async function TryClaiming(index) {
         if(!Math.floor(maxSellableCheez)) return console.log("Bonds aren't high enough to sell into");
 
         // if cheezToSell is greater than maxCheezSellable, set to maxCheezSellable
-        cheezToSell = _selling > maxSellableCheez && !IGNORE_BOND_PROFITABILITY 
+        cheezToSell = _selling > maxSellableCheez && !IGNORE_BONDS_PROFITABILITY 
             ? hre.ethers.BigNumber.from(Math.floor(maxSellableCheez * Math.pow(10,9))) 
             : cheezToSell;
 
