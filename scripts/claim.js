@@ -22,9 +22,11 @@ hre.run("compile")
           return TryClaiming(index)
           .then(async () => new Promise((res) => setTimeout(res, 1000*60)))
           .then(loop)
-          .catch(err => {
-              console.error(err);
-              process.exit(1);
+          .catch(async err => {
+            console.error(err);
+            // Wait 5 times longer before retrying
+            await new Promise((res) => setTimeout(res, 1000*60*5));
+            return loop();
           });
       }
   });

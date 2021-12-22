@@ -28,6 +28,14 @@ async function StartRebondLoop(index = 0) {
   return TryRebonding(index)
   .then((rebonded) => WaitBeforeRetry(rebonded))
   .then(() => StartRebondLoop(index))
+  .catch(async err => {
+    console.error(err);
+    // wait 5 minutes before retrying
+    console.warn("Error while attempting in rebond loop, waiting 5 minutes before retrying");
+    console.error(err);
+    await new Promise(resolve => setTimeout(resolve, 5*60*1000));
+    return StartRebondLoop(index);
+  })
 
   // If successful rebonded, wait longer before retrying
   function WaitBeforeRetry(rebonded) {
