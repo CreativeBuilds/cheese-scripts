@@ -1,0 +1,29 @@
+
+module.exports = {
+    addresses: {
+        BOND_CONTRACT_ADDRESS:"0xCa2D53268979Ce721D4Ab08cba826842e201d61C",
+        BOND_CALCULATOR_ADDRESS:"0xA5eC40A632df14b9810e98583bCEc137A69a3699",
+        LP_ADDRESS:"0x82723f6c0b32F28ddc2006b9cdBCa6cEE0ad957a",
+        ROUTER_ADDRESS:"0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
+        TOKEN_ADDRESS:"0xBbD83eF0c9D347C85e60F1b5D2c58796dBE1bA0d",
+        DAI_ADDRESS:"0xef977d2f931c1978db5f6747666fa1eacb0d0339",
+        STAKING_CONTRACT_ADDRESS:"0xb1d143e5fbab623002ebbd468f0881b2dd709da7"
+    },
+    scripts: {
+        claim: {
+            IGNORE_BONDS_PROFITABILITY: false,
+            MINIMUM_BONDS_PROFITABILITY: 1.5, /* IS ACTIVE IF IGNORE_BONDS_PROFITABILITY = false */
+            MIN_AMOUNT_CLAIMED: 0.1,
+            MIN_USD_PRICE_TO_SELL: 25,
+            SELL: false,
+            SELL_PERCENT: 100, /* INT 0-100 */
+            STAKE: false, /* IF TRUE, WILL STAKE CHEEZ FROM BONDS */
+            STAKE_PERCENT: 100, /* INT 0-100 */ /* THIS IS APPLIED AFTER SELL_PERCENT */
+        },
+        rebond: {
+            MIN_CHEEZ_TO_BOND: 1,
+            MIN_BOND_PROFIT_PERCENT: 9.5,
+        },
+    }
+    
+}

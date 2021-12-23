@@ -1,16 +1,12 @@
 const hre = require("hardhat");
 const { DetermineMaxSellableCheez } = require("./helpers/DetermineMaxSellableCheez");
-const { GetContractAddresses } = require("./helpers/GetContractAddresses");
-require('dotenv').config();
 const { InitialLogs } = require("./helpers/InitialLogs");
 const { trim } = require("./helpers/trim");
-const { MIN_USD_PRICE_TO_SELL, MINIMUM_BONDS_PROFITABILITY } = require("./helpers/user_inputs");
+const CONFIG = require("../config.js");
 
+const { MIN_USD_PRICE_TO_SELL, MIN_AMOUNT_CLAIMED, MINIMUM_BONDS_PROFITABILITY, IGNORE_BONDS_PROFITABILITY, SELL: SELL_CLAIM, STAKE: SHOULD_STAKE, SELL_PERCENT } = CONFIG.scripts.claim;
 
-let { BOND_CONTRACT_ADDRESS, BOND_CALCULATOR_ADDRESS, STAKING_CONTRACT_ADDRESS, LP_ADDRESS, ROUTER_ADDRESS, TOKEN_ADDRESS, DAI_ADDRESS } = GetContractAddresses();
-const SELL_CLAIM = process.env.SELL == "true";
-const IGNORE_BONDS_PROFITABILITY = process.env.IGNORE_BONDS_PROFITABILITY == "true";
-const SHOULD_STAKE = process.env.STAKE == "true";
+let { BOND_CONTRACT_ADDRESS, BOND_CALCULATOR_ADDRESS, STAKING_CONTRACT_ADDRESS, LP_ADDRESS, ROUTER_ADDRESS, TOKEN_ADDRESS, DAI_ADDRESS } = {...CONFIG.addresses, ...(CONFIG.scripts.claim.addresses ? CONFIG.scripts.claim.addresses : {})};
 
 hre.run("compile")
   .then(InitialLogs.bind(null, "Bond Claim Script"))
@@ -52,8 +48,8 @@ async function TryClaiming(index) {
 
   // 3.) DETERMINE AMOUNT TO SELL
   const balance = await Cheez.balanceOf(MAIN_ADDRESS);
-  const SELL_PERCENT = Math.floor(Number(process.env.SELL_PERCENT) * 100);
-  const potentialCheezToSell = SELL_CLAIM ? pendingPayout.mul(SELL_PERCENT).div(10000) : hre.ethers.BigNumber.from(0);
+  const sell_percent = Math.floor(SELL_PERCENT * 100);
+  const potentialCheezToSell = SELL_CLAIM ? pendingPayout.mul(sell_percent).div(10000) : hre.ethers.BigNumber.from(0);
 
   if(Number(pendingPayout.toString()) / Math.pow(10, 9) < 0.01) return console.log("Not enough CHEEZ to claim");
 
@@ -121,7 +117,6 @@ async function TryClaiming(index) {
     // get the  from the bondcontract
     
     const amountRedeemed = await BondContract.pendingPayoutFor(MAIN_ADDRESS);
-    const MIN_AMOUNT_CLAIMED = Number(process.env.MIN_AMOUNT_CLAIMED);
     // if amountRedeemed is little, then we don't need to redeem
     if(Number(amountRedeemed.toString()) / Math.pow(10, 9) < (isNaN(MIN_AMOUNT_CLAIMED) ? 0.01 : MIN_AMOUNT_CLAIMED)) 
         return console.log("Not enough CHEEZ to claim");
@@ -138,7 +133,7 @@ async function TryClaiming(index) {
 
     // Stake Cheez
     if(SHOULD_STAKE) {
-        amountToStake = amountRedeemed.mul(Math.floor(Number(process.env.STAKE_PERCENT)*100)).div(10000);
+        amountToStake = amountRedeemed.mul(Math.floor(Number(STAKE_PERCENT)*100)).div(10000);
         await StakingContract.stake(amountToStake, MAIN_ADDRESS);
         console.log(`Staked ${trim(Number(amountToStake.toString()) / Math.pow(10, 9), 2)} CHEEZ`);
     }
@@ -146,14 +141,14 @@ async function TryClaiming(index) {
     const bondDiscount = (1 - (Number(bondPrice) / Number(marketPrice))) * 100;
 
     // percent difference between MIN_USD_PRICE_TO_SELL and current price
-    const { maxSellableCheez, percentDifference } = await DetermineMaxSellableCheez(marketPrice, bondDiscount, LP);
+    const { maxSellableCheez, percentDifference } = await DetermineMaxSellableCheez(marketPrice, bondDiscount, MIN_USD_PRICE_TO_SELL, MINIMUM_BONDS_PROFITABILITY, LP);
     console.log("MAX CHEEZ TO SELL: " + maxSellableCheez + "CHEEZ");
     if(percentDifference < 0) return console.log(`Market price is too low to sell into (MIN ${trim(MIN_USD_PRICE_TO_SELL, 2)} USD)`);
 
-    if(process.env.SELL == "true") {
+    if(SELL_CLAIM) {
         console.log(`Bond Price: ${trim(bondPrice, 2)} USD`);
 
-        cheezToSell = amountRedeemed.sub(amountToStake).mul(Math.floor(Number(process.env.SELL_PERCENT)*100)).div(10000);
+        cheezToSell = amountRedeemed.sub(amountToStake).mul(Math.floor(sell_percent*100)).div(10000);
 
         const _selling = Number(cheezToSell.toString()) / Math.pow(10, 9);
         if(!Math.floor(maxSellableCheez)) return console.log("Bonds aren't high enough to sell into");

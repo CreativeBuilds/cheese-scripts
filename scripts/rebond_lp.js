@@ -1,18 +1,11 @@
 const hre = require("hardhat");
-require('dotenv').config();
 const { InitialLogs } = require("./helpers/InitialLogs");
 const { trim } = require("./helpers/trim");
+const CONFIG = require("../config.js");
 
-let { 
-  MIN_CHEEZ_TO_BOND, 
-  MIN_BOND_PROFIT_PERCENT,
-  BOND_CONTRACT_ADDRESS,
-  BOND_CALCULATOR_ADDRESS,
-  LP_ADDRESS,
-  ROUTER_ADDRESS,
-  TOKEN_ADDRESS,
-  DAI_ADDRESS
- } = DetermineUserInput();
+const { MIN_CHEEZ_TO_BOND, MIN_BOND_PROFIT_PERCENT,MIN_AMOUNT_CLAIMED } = CONFIG.scripts.rebond;
+
+let { BOND_CONTRACT_ADDRESS, BOND_CALCULATOR_ADDRESS, LP_ADDRESS, ROUTER_ADDRESS, TOKEN_ADDRESS, DAI_ADDRESS } = {...CONFIG.addresses, ...(CONFIG.scripts.claim.addresses ? CONFIG.scripts.claim.addresses : {})};
 
 hre.run("compile")
   .then(StartRebondLoop);
@@ -51,7 +44,7 @@ async function TryRebonding(index) {
 
   // 1.) SETUP CONTRACTS
   const { MAIN_SIGNER, MAIN_ADDRESS } = await InitSigner();
-  const { BondContract, BondCalculator, LP, Cheez, SushiRouter, DAI } = await GetContracts();
+  const { BondContract, LP, Cheez, SushiRouter, DAI } = await GetContracts();
 
   // 2.) GET BOND INFO
   const { price, nativePrice } = await GetPrice();
@@ -127,7 +120,6 @@ async function TryRebonding(index) {
     const token0 = "0xBbD83eF0c9D347C85e60F1b5D2c58796dBE1bA0d"; // Cheez
     const token1 = "0xef977d2f931c1978db5f6747666fa1eacb0d0339"; // DAI
 
-    const MIN_AMOUNT_CLAIMED = Number(process.env.MIN_AMOUNT_CLAIMED);
     // if amountRedeemed is little, then we don't need to redeem
     if(Number(pendingPayout.toString()) / Math.pow(10, 9) < (isNaN(MIN_AMOUNT_CLAIMED) ? 0.01 : MIN_AMOUNT_CLAIMED)) 
         return console.log("Not enough CHEEZ to claim");
@@ -153,65 +145,4 @@ async function TryRebonding(index) {
     await BondContract.deposit(await LP.balanceOf(MAIN_ADDRESS), nativePrice.mul(102).div(100), MAIN_ADDRESS);
     console.timeEnd(`Step 4.) Succesfully rebonded! 🧀🧀🧀 `);
   }
-}
-
-function DetermineUserInput() {
-  let MIN_CHEEZ_TO_BOND = Number(process.env.MIN_CHEEZ_TO_BOND);
-  if (!MIN_CHEEZ_TO_BOND) {
-    MIN_CHEEZ_TO_BOND = 1;
-    console.log("MIN_CHEEZ_TO_BOND not set, defaulting to " + MIN_CHEEZ_TO_BOND);
-  }
-  let MIN_BOND_PROFIT_PERCENT = Number(process.env.MIN_BOND_PROFIT_PERCENT);
-  if (!MIN_BOND_PROFIT_PERCENT) {
-    MIN_BOND_PROFIT_PERCENT = 9.5;
-    console.log("MIN_BOND_PROFIT_PERCENT not set, defaulting to 9.5%");
-  }
-  let BOND_CONTRACT_ADDRESS,
-      BOND_CALCULATOR_ADDRESS,
-      LP_ADDRESS,
-      ROUTER_ADDRESS,
-      TOKEN_ADDRESS,
-      DAI_ADDRESS;
-  try {
-    BOND_CONTRACT_ADDRESS = hre.ethers.utils.getAddress(process.env.BOND_CONTRACT_ADDRESS);
-  } catch(err) {
-    console.error(err)
-    throw new Error("BOND_CONTRACT_ADDRESS not set in .env file");
-  }
-  try {
-    BOND_CALCULATOR_ADDRESS = hre.ethers.utils.getAddress(process.env.BOND_CALCULATOR_ADDRESS);
-  } catch(err) {
-    throw new Error("BOND_CALCULATOR_ADDRESS not set in .env file");
-  }
-  try {
-    LP_ADDRESS = hre.ethers.utils.getAddress(process.env.LP_ADDRESS);
-  } catch(err) {
-    throw new Error("LP_ADDRESS not set in .env file");
-  }
-  try {
-    ROUTER_ADDRESS = hre.ethers.utils.getAddress(process.env.ROUTER_ADDRESS);
-  } catch(err) {
-    throw new Error("ROUTER_ADDRESS not set in .env file");
-  }
-  try {
-    TOKEN_ADDRESS = hre.ethers.utils.getAddress(process.env.TOKEN_ADDRESS);
-  } catch(err) {
-    throw new Error("TOKEN_ADDRESS not set in .env file");
-  }
-  try {
-    DAI_ADDRESS = hre.ethers.utils.getAddress(process.env.DAI_ADDRESS);
-  } catch(err) {
-    throw new Error("DAI_ADDRESS not set in .env file");
-  }
-  
-  return { 
-    MIN_CHEEZ_TO_BOND, 
-    MIN_BOND_PROFIT_PERCENT,
-    BOND_CONTRACT_ADDRESS,
-    BOND_CALCULATOR_ADDRESS,
-    LP_ADDRESS,
-    ROUTER_ADDRESS,
-    TOKEN_ADDRESS,
-    DAI_ADDRESS
-   };
 }
