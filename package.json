@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "claim": "hardhat run scripts/claim.js --network harmony_alt",
+    "market_floor": "hardhat run scripts/market_floor.js --network harmony_alt",
     "rebond": "hardhat run scripts/rebond_lp.js --network harmony",
     "rebond:alt": "hardhat run scripts/rebond_lp.js --network harmony_alt",
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -17,6 +18,7 @@
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "dotenv": "^10.0.0",
     "ethereum-waffle": "^3.2.0",
-    "hardhat": "^2.8.0"
+    "hardhat": "^2.8.0",
+    "node-fetch": "^3.1.0"
   }
 }

@@ -1,4 +1,10 @@
 
+const ITEM_TYPES = {
+    0: "mice",
+    1: "cats",
+    2: "traps"
+}
+
 module.exports = {
     addresses: {
         BOND_CONTRACT_ADDRESS:"0xCa2D53268979Ce721D4Ab08cba826842e201d61C",
@@ -19,6 +25,19 @@ module.exports = {
             SELL_PERCENT: 100, /* INT 0-100 */
             STAKE: false, /* IF TRUE, WILL STAKE CHEEZ FROM BONDS */
             STAKE_PERCENT: 100, /* INT 0-100 */ /* THIS IS APPLIED AFTER SELL_PERCENT */
+        },
+        market_floor: {
+            ITEM_TYPE: ITEM_TYPES[0], /* 0 == "mice", 1 == "cats", 2 == "traps" */
+            PRICE_FLOOR_IN: "cheez", /* "usd", or "cheez" */
+            FLOOR_PRICES: { 
+                /* WILL BUY BELOW FLOOR 
+                 * (if undercut is on, will not undercut below these prices + (5% for market fee)) 
+                 */
+                "mice": -1, // Set to -1 to disable
+                "cats": -1, 
+                "traps": -1, 
+            },
+            MAX_SESSION_CHEEZ: -1, /* (def = -1) -1 = no limit , otherwise, stop buying after MAX_SESSION_CHEEZ is reached */
         },
         rebond: {
             MIN_CHEEZ_TO_BOND: 1,
