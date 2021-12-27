@@ -4,7 +4,7 @@ const { InitialLogs } = require("./helpers/InitialLogs");
 const { trim } = require("./helpers/trim");
 const CONFIG = require("../config.js");
 
-const { MIN_USD_PRICE_TO_SELL, MIN_AMOUNT_CLAIMED, MINIMUM_BONDS_PROFITABILITY, IGNORE_BONDS_PROFITABILITY, SELL: SELL_CLAIM, STAKE: SHOULD_STAKE, SELL_PERCENT } = CONFIG.scripts.claim;
+const { MIN_USD_PRICE_TO_SELL, MIN_AMOUNT_CLAIMED, MINIMUM_BONDS_PROFITABILITY, IGNORE_BONDS_PROFITABILITY, SELL: SELL_CLAIM, STAKE: SHOULD_STAKE, SELL_PERCENT, STAKE_PERCENT } = CONFIG.scripts.claim;
 
 let { BOND_CONTRACT_ADDRESS, BOND_CALCULATOR_ADDRESS, STAKING_CONTRACT_ADDRESS, LP_ADDRESS, ROUTER_ADDRESS, TOKEN_ADDRESS, DAI_ADDRESS } = {...CONFIG.addresses, ...(CONFIG.scripts.claim.addresses ? CONFIG.scripts.claim.addresses : {})};
 
@@ -49,7 +49,7 @@ async function TryClaiming(index) {
   // 3.) DETERMINE AMOUNT TO SELL
   const balance = await Cheez.balanceOf(MAIN_ADDRESS);
   const sell_percent = Math.floor(SELL_PERCENT * 100);
-  const potentialCheezToSell = SELL_CLAIM ? pendingPayout.mul(sell_percent).div(10000) : hre.ethers.BigNumber.from(0);
+  const potentialCheezToSell = SELL_CLAIM ? pendingPayout.add(balance).mul(sell_percent).div(10000) : hre.ethers.BigNumber.from(0);
 
   if(Number(pendingPayout.toString()) / Math.pow(10, 9) < 0.01) return console.log("Not enough CHEEZ to claim");
 
@@ -148,7 +148,7 @@ async function TryClaiming(index) {
     if(SELL_CLAIM) {
         console.log(`Bond Price: ${trim(bondPrice, 2)} USD`);
 
-        cheezToSell = amountRedeemed.sub(amountToStake).mul(Math.floor(sell_percent*100)).div(10000);
+        cheezToSell = amountRedeemed.sub(amountToStake).mul(sell_percent).div(10000);
 
         const _selling = Number(cheezToSell.toString()) / Math.pow(10, 9);
         if(!Math.floor(maxSellableCheez)) return console.log("Bonds aren't high enough to sell into");
