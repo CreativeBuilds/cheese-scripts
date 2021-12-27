@@ -28,7 +28,13 @@ npm run rebond
 1. ) Claim any existing LP bonds
 2. ) Sell half of all CHEEZ
 3. ) Form LP
-4. ) Deposit LP in exchange for bonds  
+4. ) Deposit LP in exchange for bonds   
+
+
+`claim` will check once a minute to see if your bonds have earned enough to claim. 
+
+
+`market_floor` can be used to buy up the floor price of either mice / cats / traps
   
 
 ### Dev Notes
