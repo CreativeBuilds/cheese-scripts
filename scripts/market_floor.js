@@ -218,7 +218,7 @@ async function TryRaisingFloor(index) {
       if(FLOOR_PRICES[type] > 0 && (listing.price / Math.pow(10, 9)) > FLOOR_PRICES[type]) return console.log(`Waiting for cheaper ${type} listing...`);
       console.log(`Buying ${amountToBuy} ${amountToBuy == 1 ? type.split("s")[0] : type} for ${amountToBuy * listing.price / Math.pow(10, 9)} CHEEZ`);
 
-      if ((amountToBuy * price * Math.pow(10, 9)) + session_cheez > MAX_SESSION_CHEEZ * Math.pow(10, 9))
+      if ((amountToBuy * listing.price * Math.pow(10, 9)) + session_cheez > MAX_SESSION_CHEEZ * Math.pow(10, 9))
         {
           console.log(`🧀 Reached max session CHEEZ`);
           console.log(new Date().toLocaleString());
